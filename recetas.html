@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recetas Anti-Silla | Alto en proteína, fácil y rápido</title>
+<meta name="description" content="Recetas fitness alto en proteína para gente que trabaja sentada. 30 min, fácil, con macros calculados.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#080B09;color:#F4F6EF;line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+header{padding:48px 0 32px;text-align:center;border-bottom:1px solid #1a1f1a}
+h1{font-size:48px;font-weight:800;letter-spacing:-1px;margin-bottom:12px}
+h1 span{color:#ECFF24}
+.subtitle{color:#A9B0A9;font-size:18px;max-width:600px;margin:0 auto}
+.recipes{padding:48px 0}
+.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:32px;margin-top:32px}
+.recipe-card{background:#0f1410;border:1px solid #1a1f1a;border-radius:12px;overflow:hidden;transition:transform 0.2s,border-color 0.2s}
+.recipe-card:hover{transform:translateY(-4px);border-color:#ECFF24}
+.recipe-image{width:100%;height:240px;object-fit:cover;background:#1a1f1a}
+.recipe-content{padding:24px}
+.recipe-title{font-size:24px;font-weight:700;margin-bottom:8px;color:#F4F6EF}
+.recipe-meta{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.meta-item{font-size:14px;color:#A9B0A9}
+.macros{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.macro{background:#080B09;padding:12px;border-radius:8px;text-align:center}
+.macro-value{font-size:20px;font-weight:700;color:#ECFF24}
+.macro-label{font-size:12px;color:#A9B0A9;text-transform:uppercase;letter-spacing:0.5px}
+.btn{display:block;width:100%;padding:14px;background:#ECFF24;color:#080B09;text-align:center;text-decoration:none;font-weight:700;border-radius:8px;border:none;cursor:pointer;font-size:16px;transition:background 0.2s}
+.btn:hover{background:#d4e620}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-content{background:#0f1410;border:1px solid #1a1f1a;border-radius:12px;padding:32px;max-width:480px;width:90%}
+.modal-title{font-size:28px;font-weight:700;margin-bottom:8px;color:#ECFF24}
+.modal-subtitle{color:#A9B0A9;margin-bottom:24px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:6px;color:#F4F6EF;font-weight:500}
+.form-group input{width:100%;padding:12px;background:#080B09;border:1px solid #1a1f1a;border-radius:8px;color:#F4F6EF;font-size:16px}
+.form-group input:focus{outline:none;border-color:#ECFF24}
+.close-modal{background:transparent;border:none;color:#A9B0A9;font-size:24px;cursor:pointer;position:absolute;top:16px;right:16px}
+footer{padding:32px 0;text-align:center;border-top:1px solid #1a1f1a;color:#A9B0A9;font-size:14px}
+footer a{color:#ECFF24;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>RECETAS <span>ANTI-SILLA</span></h1>
+<p class="subtitle">Recetas fitness alto en proteína para gente que trabaja sentada. 30 minutos, fácil, con macros calculados.</p>
+</header>
+
+<section class="recipes">
+<div class="recipe-grid" id="recipeGrid"></div>
+</section>
+
+<footer>
+<p>© 2026 Anti-Silla. <a href="https://percho92.github.io/anti-silla-diagnostico/">Haz el diagnóstico gratis</a></p>
+</footer>
+</div>
+
+<div class="modal" id="downloadModal">
+<div class="modal-content">
+<button class="close-modal" onclick="closeModal()">&times;</button>
+<h2 class="modal-title" id="modalRecipeTitle">Descarga la receta</h2>
+<p class="modal-subtitle" id="modalRecipeSubtitle">Te la enviamos por email al instante</p>
+<form id="downloadForm">
+<div class="form-group">
+<label for="name">Nombre</label>
+<input type="text" id="name" name="name" required>
+</div>
+<div class="form-group">
+<label for="email">Email</label>
+<input type="email" id="email" name="email" required>
+</div>
+<button type="submit" class="btn">ENVIAR RECETA</button>
+</form>
+</div>
+</div>
+
+<script>
+// Datos de recetas - AÑADE NUEVAS RECETAS AQUÍ
+const recipes = [
+{
+id: 'receta-01',
+title: 'Arroz Buffalo con Carne Picada',
+image: 'recetas/receta-01.png',
+time: '30 min',
+difficulty: 'Fácil',
+macros: {
+calorias: 580,
+proteina: 45,
+grasa: 20,
+carbs: 60
+}
+}
+// Ejemplo de cómo añadir receta-02:
+// ,{
+// id: 'receta-02',
+// title: 'Pollo al Curry con Arroz',
+// image: 'recetas/receta-02.png',
+// time: '25 min',
+// difficulty: 'Fácil',
+// macros: {
+// calorias: 520,
+// proteina: 42,
+// grasa: 15,
+// carbs: 58
+// }
+// }
+];
+
+let selectedRecipe = null;
+
+// Renderizar recetas
+function renderRecipes() {
+const grid = document.getElementById('recipeGrid');
+grid.innerHTML = recipes.map(recipe => `
+<div class="recipe-card">
+<img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
+<div class="recipe-content">
+<h3 class="recipe-title">${recipe.title}</h3>
+<div class="recipe-meta">
+<span class="meta-item">⏱ ${recipe.time}</span>
+<span class="meta-item">📊 ${recipe.difficulty}</span>
+</div>
+<div class="macros">
+<div class="macro">
+<div class="macro-value">${recipe.macros.calorias}</div>
+<div class="macro-label">kcal</div>
+</div>
+<div class="macro">
+<div class="macro-value">${recipe.macros.proteina}g</div>
+<div class="macro-label">proteína</div>
+</div>
+<div class="macro">
+<div class="macro-value">${recipe.macros.grasa}g</div>
+<div class="macro-label">grasa</div>
+</div>
+<div class="macro">
+<div class="macro-value">${recipe.macros.carbs}g</div>
+<div class="macro-label">carbs</div>
+</div>
+</div>
+<button class="btn" onclick="openModal('${recipe.id}')">DESCARGAR RECETA</button>
+</div>
+</div>
+`).join('');
+}
+
+function openModal(recipeId) {
+selectedRecipe = recipes.find(r => r.id === recipeId);
+document.getElementById('modalRecipeTitle').textContent = selectedRecipe.title;
+document.getElementById('downloadModal').classList.add('active');
+}
+
+function closeModal() {
+document.getElementById('downloadModal').classList.remove('active');
+document.getElementById('downloadForm').reset();
+selectedRecipe = null;
+}
+
+document.getElementById('downloadForm').addEventListener('submit', async (e) => {
+e.preventDefault();
+const name = document.getElementById('name').value;
+const email = document.getElementById('email').value;
+
+try {
+await fetch('https://script.google.com/macros/s/AKfycbzNAx4EBEcNL8EL7bau3Ate-7ddDRBdrIXHit6GNAyycyN1L9axRMpzgROPQURoWvk3qA/exec', {
+method: 'POST',
+mode: 'no-cors',
+headers: {'Content-Type': 'application/json'},
+body: JSON.stringify({
+type: 'recipe',
+recipeId: selectedRecipe.id,
+recipeTitle: selectedRecipe.title,
+name: name,
+email: email
+})
+});
+alert('¡Receta enviada! Revisa tu email.');
+closeModal();
+} catch (error) {
+alert('Error al enviar. Inténtalo de nuevo.');
+}
+});
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('downloadModal').addEventListener('click', (e) => {
+if (e.target.id === 'downloadModal') closeModal();
+});
+
+renderRecipes();
+</script>
+</body>
+</html>
