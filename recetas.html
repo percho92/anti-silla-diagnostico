@@ -33,6 +33,9 @@ h1 span{color:#ECFF24}
 .modal-content{background:#0f1410;border:1px solid #1a1f1a;border-radius:12px;padding:32px;max-width:480px;width:90%}
 .modal-title{font-size:28px;font-weight:700;margin-bottom:8px;color:#ECFF24}
 .modal-subtitle{color:#A9B0A9;margin-bottom:24px}
+.success-state{display:none;text-align:center;padding:8px 0}
+.success-state.active{display:block}
+.success-state p{color:#A9B0A9;margin:0 0 20px}
 .form-group{margin-bottom:16px}
 .form-group label{display:block;margin-bottom:6px;color:#F4F6EF;font-weight:500}
 .form-group input{width:100%;padding:12px;background:#080B09;border:1px solid #1a1f1a;border-radius:8px;color:#F4F6EF;font-size:16px}
@@ -75,16 +78,22 @@ footer a{color:#ECFF24;text-decoration:none}
 </div>
 <button type="submit" class="btn">ENVIAR RECETA</button>
 </form>
+<div class="success-state" id="successState">
+<p>Tu receta ya está en camino. También puedes verla ahora mismo.</p>
+<a class="btn" id="openRecipeButton" href="#" target="_blank" rel="noopener">ABRIR RECETA AHORA</a>
+</div>
 </div>
 </div>
 
 <script>
+const RECIPE_AUTOMATION_URL = 'https://script.google.com/macros/s/AKfycbz-BLkJ5IAm4wxwqGfR3wJJzs3qzdREJ3bTs9_gcDglkrt6n4KuKarsTOuElzZH_GNO/exec';
 // Datos de recetas - AÑADE NUEVAS RECETAS AQUÍ
 const recipes = [
 {
 id: 'receta-01',
 title: 'BEEF & RICE BOWL',
 image: 'recetas/receta-01.jpg',
+pdf: 'recetas/beef-rice-bowl.pdf',
 time: '30 min',
 difficulty: 'Fácil',
 macros: {
@@ -151,6 +160,8 @@ grid.innerHTML = recipes.map(recipe => `
 function openModal(recipeId) {
 selectedRecipe = recipes.find(r => r.id === recipeId);
 document.getElementById('modalRecipeTitle').textContent = selectedRecipe.title;
+document.getElementById('downloadForm').style.display = 'block';
+document.getElementById('successState').classList.remove('active');
 document.getElementById('downloadModal').classList.add('active');
 }
 
@@ -160,13 +171,19 @@ document.getElementById('downloadForm').reset();
 selectedRecipe = null;
 }
 
+function showSuccess() {
+document.getElementById('downloadForm').style.display = 'none';
+document.getElementById('openRecipeButton').href = selectedRecipe.pdf;
+document.getElementById('successState').classList.add('active');
+}
+
 document.getElementById('downloadForm').addEventListener('submit', async (e) => {
 e.preventDefault();
 const name = document.getElementById('name').value;
 const email = document.getElementById('email').value;
 
 try {
-await fetch('https://script.google.com/macros/s/AKfycbzNAx4EBEcNL8EL7bau3Ate-7ddDRBdrIXHit6GNAyycyN1L9axRMpzgROPQURoWvk3qA/exec', {
+await fetch(RECIPE_AUTOMATION_URL, {
 method: 'POST',
 mode: 'no-cors',
 headers: {'Content-Type': 'application/json'},
@@ -178,8 +195,7 @@ name: name,
 email: email
 })
 });
-alert('¡Receta enviada! Revisa tu email.');
-closeModal();
+showSuccess();
 } catch (error) {
 alert('Error al enviar. Inténtalo de nuevo.');
 }
