@@ -48,7 +48,7 @@
       const email = document.getElementById('email');
       if (!name || !email.checkValidity()) { email.reportValidity(); return; }
       submit.disabled = true; submit.textContent = 'ENVIANDO...';
-      const payload = {name, email: email.value.trim(), source: 'reel-rutinas-express', resource: '3 Rutinas Express'};
+      const payload = {type: 'rutinas-express', name, email: email.value.trim(), source: 'reel-rutinas-express', resource: '3 Rutinas Express'};
       // Open synchronously inside the submit gesture: waiting for fetch makes
       // browsers treat this as a popup and block it.
       const deliveryWindow = window.open(PDF_URL, '_blank');
