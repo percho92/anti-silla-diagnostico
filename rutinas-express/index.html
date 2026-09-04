@@ -29,8 +29,8 @@
         </div>
         <div id="success" class="success">
           <div class="kicker">Revisa tu bandeja de entrada</div>
-          <h2>Las rutinas ya van de camino</h2>
-          <p>Te hemos enviado las <strong>3 rutinas express</strong> al email.</p>
+          <h2>Las rutinas ya están listas</h2>
+          <p>Hemos abierto las <strong>3 rutinas express</strong> en una pestaña nueva. También te enviamos una copia al email.</p>
           <p>Si no lo ves en unos minutos, revisa Promociones o Spam.</p>
         </div>
       </div>
@@ -39,6 +39,7 @@
   </main>
   <script>
     const ENDPOINT = 'https://script.google.com/macros/s/AKfycbwk78Owidug-ianS_ul7uvPFdhNAndWvBLRXfQDXW9GC8vaSyfKNNskYJWvMQDeYg8_/exec';
+    const PDF_URL = 'https://percho92.github.io/anti-silla-diagnostico/rutinas-express/ANTI-SILLA_3-rutinas-express_FINAL_v3.pdf';
     const form = document.getElementById('leadForm');
     const submit = document.getElementById('submit');
     form.addEventListener('submit', async (event) => {
@@ -48,6 +49,10 @@
       if (!name || !email.checkValidity()) { email.reportValidity(); return; }
       submit.disabled = true; submit.textContent = 'ENVIANDO...';
       const payload = {name, email: email.value.trim(), source: 'reel-rutinas-express', resource: '3 Rutinas Express'};
+      // Open synchronously inside the submit gesture: waiting for fetch makes
+      // browsers treat this as a popup and block it.
+      const deliveryWindow = window.open(PDF_URL, '_blank');
+      if (deliveryWindow) deliveryWindow.opener = null;
       try {
         await fetch(ENDPOINT, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)});
         localStorage.setItem('antisilla_rutinas_express', JSON.stringify({name, email:email.value.trim(), date:new Date().toISOString()}));
